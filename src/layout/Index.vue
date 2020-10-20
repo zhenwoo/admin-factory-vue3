@@ -3,7 +3,7 @@
         <div class="app-frame-header" :style="{height: headerHeight}" v-if="showHeader">
             <c-header></c-header>
         </div>
-        <split style="height: 900px">
+        <split :style="{height: bodyHeight}">
             <template v-slot:split1>
                 <side-bar></side-bar>
             </template>
@@ -44,11 +44,15 @@ export default defineComponent(
             const headerHeight: ComputedRef<string> = computed(() => {
                 return props.showHeader ? config.headerHeight + 'px' : '0px'
             })
+            const bodyHeight: ComputedRef<string> = computed(() => {
+                return document.body.offsetHeight - parseInt(headerHeight.value.replace('px', '')) + 'px'
+            })
             const theme: ComputedRef<string> = computed(() => {
                 return store.state.theme
             })
             return {
                 headerHeight,
+                bodyHeight,
                 theme
             }
         }

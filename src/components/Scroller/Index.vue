@@ -39,19 +39,12 @@ export default defineComponent({
         const handleMove = (e: MouseEvent) => {
             end = e.y
             const flag: number = end - start // 判断是否左右或者上下滑动方向
-            if (flag < 0) {
-                if (y.value <= 0) {
-                    y.value = 0
-                    return
-                }
-                y.value = e.clientY - disY
+            console.log(flag)
+            if (flag <= 0) {
+                y.value = y.value <= 0 ? 0 : e.clientY - disY
             } else {
-                if (y.value >= dis.value) {
-                    y.value = dis.value
-                    return
-                }
+                y.value = y.value >= dis.value ? dis.value : e.clientY - disY
             }
-            y.value = e.clientY - disY
         }
         const handleUp = (e: MouseEvent) => {
             document.removeEventListener('mousemove', handleMove)
@@ -73,18 +66,10 @@ export default defineComponent({
         const handleWheel = (e: WheelEvent) => {
             const opr = e.deltaY
             if (opr < 0) {
-                if (y.value <= 1) {
-                    y.value = 0
-                    return
-                }
+                y.value = y.value <= 1 ? 0 : y.value + 2 * opr
+            } else {
+                y.value = y.value >= dis.value - 1 ? dis.value : y.value + 2 * opr
             }
-            if (opr > 0) {
-                if (y.value >= dis.value - 1) {
-                    y.value = dis.value
-                    return
-                }
-            }
-            y.value += 2 * opr
         }
         onMounted(() => {
             wrapperHeight.value = (wrapper.value as unknown as HTMLElement).offsetHeight
@@ -115,12 +100,13 @@ export default defineComponent({
             right: 0;
             bottom: 0;
             width: 6px;
-            background:rgba(0,0,0,.02);
+            overflow: hidden;
+            background:rgba(0,0,0,.1);
             .c-scroller-bar{
                 position: absolute;
                 height: 400px;
                 width: 6px;
-                background: rgba(0,0,0,.08);
+                background: rgba(0,0,0,1);
                 cursor: pointer;
             }
         }
