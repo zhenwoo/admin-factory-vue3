@@ -45,7 +45,6 @@ export default defineComponent({
         const handleMove = throttle((e: MouseEvent) => {
             end = props.mode === 'h' ? e.x : e.y
             const flag = end - start // 判断是否左右或者上下滑动方向
-            console.log(flag)
             if (props.mode === 'v') {
                 if (flag <= 0 && y.value <= props.min) {
                     y.value = props.min

@@ -1,26 +1,46 @@
 <template>
     <scroller>
-        <div class="c-side-bar">
-            <div class="c-side-bar-search">
+        <div class="c-side">
+            <div class="c-side-search">
                 <input class="c-nav-search" type="text" placeholder="请输入">
+            </div>
+            <div class="c-side-content">
+                <ul>
+                    <li v-for="i of arr" :key="i">{{i}}</li>
+                </ul>
             </div>
         </div>
     </scroller>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, Ref, ref } from 'vue'
 import Scroller from '@/components/Scroller/Index.vue'
 export default defineComponent({
     name: 'CHeader',
     components: {
         Scroller
+    },
+    setup () {
+        const arr: Ref<number[]> = ref([])
+        for (let i = 0; i < 1000; i++) {
+            arr.value.push(i)
+        }
+        return {
+            arr
+        }
     }
 })
 </script>
 <style scoped lang="less">
-    .c-side-bar{
-        .c-side-bar-search{
+    .c-side{
+        position: relative;
+        .c-side-search{
             padding: 10px;
+            position: absolute;
+            height: 52px;
+            width: 100%;
+            background: red;
+            box-sizing: border-box;
             .c-nav-search{
                 appearance: none;
                 height: 32px;
@@ -33,6 +53,9 @@ export default defineComponent({
                     outline: none;
                 }
             }
+        }
+        .c-side-content{
+            padding: 33px 10px 10px 10px;
         }
     }
 

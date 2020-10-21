@@ -18,7 +18,7 @@
 import { defineComponent, computed, SetupContext, ComputedRef } from 'vue'
 import { Store, useStore } from 'vuex'
 import config from '@/config/Index'
-import SideBar from '@/layout/componets/SideBar.vue'
+import SideBar from '@/layout/componets/SideBar/index.vue'
 import CHeader from '@/layout/componets/Header.vue'
 import Split from '@/components/Split/index.vue'
 interface Props {

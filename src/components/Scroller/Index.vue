@@ -1,10 +1,10 @@
 <template>
     <div class="c-scroller-wrapper"  @wheel="handleWheel" ref="wrapper">
-        <slot>
-            <div class="c-scroller-body">
+        <div class="c-scroller-body">
+            <div class="c-scroller-content" ref="content">
                 <slot></slot>
             </div>
-        </slot>
+        </div>
         <div class="c-scroller-bars" @click.self="handleBarsClick">
             <div class="c-scroller-bar" ref="scrollerY" :style="top" @mousedown="handleMousedown"></div>
         </div>
@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { ComputedRef, defineComponent, computed, Ref, ref, onMounted } from 'vue'
+import { ComputedRef, defineComponent, computed, Ref, ref, onMounted, nextTick } from 'vue'
 export default defineComponent({
     name: 'CScroller',
     props: {
@@ -24,14 +24,24 @@ export default defineComponent({
     setup (props) {
         const y: Ref<number> = ref(0)
         const wrapper = ref(null)
+        const content = ref(null)
         const scrollerY = ref(null)
         const wrapperHeight: Ref<number> = ref(0)
         const scrollerYH: Ref<number> = ref(0)
+        const contentHeight: ComputedRef<number> = computed(() => {
+            return (content.value as unknown as HTMLElement).offsetHeight
+        })
+        const barHeight: ComputedRef<string> = computed(() => {
+            if (wrapper.value) {
+                return `height: ${contentHeight.value / (wrapper.value as unknown as HTMLElement).offsetHeight}px`
+            }
+            return '0px'
+        })
         let disY = 0
         let start = 0
         let end = 0
         const top: ComputedRef<string> = computed(() => {
-            return `top:${y.value}px`
+            return `top:${y.value}px;${barHeight.value}`
         })
         const dis: ComputedRef<number> = computed(() => {
             return wrapperHeight.value - scrollerYH.value
@@ -39,7 +49,6 @@ export default defineComponent({
         const handleMove = (e: MouseEvent) => {
             end = e.y
             const flag: number = end - start // 判断是否左右或者上下滑动方向
-            console.log(flag)
             if (flag <= 0) {
                 y.value = y.value <= 0 ? 0 : e.clientY - disY
             } else {
@@ -64,21 +73,26 @@ export default defineComponent({
             y.value = e.y - top[0].top
         }
         const handleWheel = (e: WheelEvent) => {
-            const opr = e.deltaY
-            if (opr < 0) {
-                y.value = y.value <= 1 ? 0 : y.value + 2 * opr
+            if (e.deltaY < 0) {
+                y.value = y.value <= 1 ? 0 : y.value + 2 * e.deltaY
             } else {
-                y.value = y.value >= dis.value - 1 ? dis.value : y.value + 2 * opr
+                y.value = y.value >= dis.value ? dis.value : y.value + 2 * e.deltaY
             }
         }
         onMounted(() => {
-            wrapperHeight.value = (wrapper.value as unknown as HTMLElement).offsetHeight
-            scrollerYH.value = (scrollerY.value as unknown as HTMLElement).offsetHeight
+            nextTick(() => {
+                wrapperHeight.value = (wrapper.value as unknown as HTMLElement).offsetHeight
+                scrollerYH.value = (scrollerY.value as unknown as HTMLElement).offsetHeight
+                console.log(barHeight.value)
+            })
         })
         return {
             wrapper,
             scrollerY,
+            content,
             top,
+            barHeight,
+            contentHeight,
             handleWheel,
             handleMousedown,
             handleBarsClick
@@ -93,6 +107,7 @@ export default defineComponent({
         .c-scroller-body{
             height: 100%;
             background: #cccccc;
+            overflow: hidden;
         }
         .c-scroller-bars{
             position: absolute;
