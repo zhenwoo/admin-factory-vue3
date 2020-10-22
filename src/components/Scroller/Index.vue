@@ -1,27 +1,39 @@
 <template>
     <div class="c-scroller-wrapper"  @wheel="handleWheel" ref="wrapper">
         <div class="c-scroller-body">
-            <div class="c-scroller-content" ref="content">
+            <div class="c-scroller-header" v-if="header">
+                <slot name="header"></slot>
+            </div>
+            <div class="c-scroller-content" ref="content" >
                 <slot></slot>
+            </div>
+            <div class="c-scroller-footer" v-if="footer">
+                <slot name="footer"></slot>
             </div>
         </div>
         <div class="c-scroller-bars" @click.self="handleBarsClick">
-            <div class="c-scroller-bar" ref="scrollerY" :style="top" @mousedown="handleMousedown"></div>
+            <div class="c-scroller-bar" :class="showBar ? '' :'c-scroller-opacity'" ref="scrollerY" :style="top" @mousedown="handleMousedown"></div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { ComputedRef, defineComponent, computed, Ref, ref, onMounted, nextTick } from 'vue'
+import { ComputedRef, defineComponent, computed, Ref, ref, onMounted, nextTick, Slot } from 'vue'
 export default defineComponent({
     name: 'CScroller',
     props: {
         clickAble: {
             type: Boolean,
             default: true
+        },
+        showBar: {
+            type: Boolean,
+            default: true
         }
     },
-    setup (props) {
+    setup (props, { slots }) {
+        const header = ref(slots.header)
+        const footer = ref(slots.footer)
         const y: Ref<number> = ref(0)
         const wrapper = ref(null)
         const content = ref(null)
@@ -37,6 +49,10 @@ export default defineComponent({
             }
             return '0px'
         })
+        const per: ComputedRef<number> = computed(() => {
+            return y.value / (wrapperHeight.value - scrollerYH.value)
+        })
+        console.log(per)
         let disY = 0
         let start = 0
         let end = 0
@@ -93,6 +109,8 @@ export default defineComponent({
             top,
             barHeight,
             contentHeight,
+            header,
+            footer,
             handleWheel,
             handleMousedown,
             handleBarsClick
@@ -107,7 +125,27 @@ export default defineComponent({
         .c-scroller-body{
             height: 100%;
             background: #cccccc;
+            position: relative;
             overflow: hidden;
+            .c-scroller-header{
+                width: 100%;
+                z-index: 2;
+                position: relative;
+            }
+            .c-scroller-content{
+                position: absolute;
+                width: 100%;
+                top: -120px;
+                padding-bottom: 50px;
+            }
+            .c-scroller-footer{
+                position: absolute;
+                bottom: 0;
+                height: 50px;
+                z-index: 9;
+                background: red;
+                width: 100%;
+            }
         }
         .c-scroller-bars{
             position: absolute;
@@ -116,13 +154,16 @@ export default defineComponent({
             bottom: 0;
             width: 6px;
             overflow: hidden;
-            background:rgba(0,0,0,.1);
+            z-index: 999;
             .c-scroller-bar{
                 position: absolute;
                 height: 400px;
                 width: 6px;
                 background: rgba(0,0,0,1);
                 cursor: pointer;
+            }
+            .c-scroller-opacity{
+                opacity: 0;
             }
         }
     }

@@ -1,15 +1,20 @@
 <template>
     <scroller>
-        <div class="c-side">
+        <template #header>
             <div class="c-side-search">
                 <input class="c-nav-search" type="text" placeholder="请输入">
             </div>
+        </template>
+        <template #default>
             <div class="c-side-content">
                 <ul>
                     <li v-for="i of arr" :key="i">{{i}}</li>
                 </ul>
             </div>
-        </div>
+        </template>
+        <template #footer>
+            <h1>hello</h1>
+        </template>
     </scroller>
 </template>
 <script lang="ts">
@@ -22,7 +27,7 @@ export default defineComponent({
     },
     setup () {
         const arr: Ref<number[]> = ref([])
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 60; i++) {
             arr.value.push(i)
         }
         return {
@@ -32,31 +37,27 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="less">
-    .c-side{
-        position: relative;
-        .c-side-search{
-            padding: 10px;
-            position: absolute;
-            height: 52px;
+    .c-side-search{
+        padding: 10px;
+        height: 52px;
+        width: 100%;
+        background: red;
+        box-sizing: border-box;
+        .c-nav-search{
+            appearance: none;
+            height: 32px;
+            border: 1px solid #eee;
             width: 100%;
-            background: red;
             box-sizing: border-box;
-            .c-nav-search{
-                appearance: none;
-                height: 32px;
-                border: 1px solid #eee;
-                width: 100%;
-                box-sizing: border-box;
-                text-indent: 10px;
-                &:focus{
-                    border:1px solid coral;
-                    outline: none;
-                }
+            text-indent: 10px;
+            &:focus{
+                border:1px solid coral;
+                outline: none;
             }
         }
-        .c-side-content{
-            padding: 33px 10px 10px 10px;
-        }
+    }
+    .c-side-content{
+        padding: 33px 10px 10px 10px;
     }
 
 </style>

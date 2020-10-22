@@ -1,4 +1,4 @@
 const config = {
-    headerHeight: 50
+    headerHeight: 60
 }
 export default config
