@@ -22,7 +22,7 @@ export default defineComponent({
             default: 'h'
         },
         min: {
-            type: Number,
+            type: Number as PropType<number>,
             default: 250
         }
     },

@@ -18,16 +18,16 @@
 </template>
 
 <script lang="ts">
-import { ComputedRef, defineComponent, computed, Ref, ref, onMounted, nextTick, Slot } from 'vue'
+import { ComputedRef, defineComponent, computed, Ref, ref, onMounted, nextTick, Slot, PropType } from 'vue'
 export default defineComponent({
     name: 'CScroller',
     props: {
         clickAble: {
-            type: Boolean,
+            type: Boolean as PropType<boolean>,
             default: true
         },
         showBar: {
-            type: Boolean,
+            type: Boolean as PropType<boolean>,
             default: true
         }
     },
@@ -45,7 +45,7 @@ export default defineComponent({
         })
         const barHeight: ComputedRef<string> = computed(() => {
             if (wrapper.value) {
-                return `height: ${contentHeight.value / (wrapper.value as unknown as HTMLElement).offsetHeight}px`
+                return '200px'
             }
             return '0px'
         })
