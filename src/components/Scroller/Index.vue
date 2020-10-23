@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { ComputedRef, defineComponent, computed, Ref, ref, onMounted, nextTick, Slot, PropType } from 'vue'
+import { ComputedRef, defineComponent, computed, Ref, ref, onMounted, nextTick, PropType } from 'vue'
 export default defineComponent({
     name: 'CScroller',
     props: {
@@ -76,7 +76,7 @@ export default defineComponent({
                 y.value = y.value >= dis.value ? dis.value : e.clientY - disY
             }
         }
-        const handleUp = (e: MouseEvent) => {
+        const handleUp = () => {
             document.removeEventListener('mousemove', handleMove)
             document.removeEventListener('mouseup', handleUp)
         }
