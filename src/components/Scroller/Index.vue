@@ -4,7 +4,7 @@
             <div class="c-scroller-header" v-if="header">
                 <slot name="header"></slot>
             </div>
-            <div class="c-scroller-content" ref="content" >
+            <div class="c-scroller-content" ref="content" :style="{top: contentPosition}">
                 <slot></slot>
             </div>
             <div class="c-scroller-footer" v-if="footer">
@@ -41,7 +41,10 @@ export default defineComponent({
         const wrapperHeight: Ref<number> = ref(0)
         const scrollerYH: Ref<number> = ref(0)
         const contentHeight: ComputedRef<number> = computed(() => {
-            return (content.value as unknown as HTMLElement).offsetHeight
+            if (content.value) {
+                return (content.value as unknown as HTMLElement).offsetHeight
+            }
+            return 0
         })
         const barHeight: ComputedRef<string> = computed(() => {
             if (wrapper.value) {
@@ -52,7 +55,9 @@ export default defineComponent({
         const per: ComputedRef<number> = computed(() => {
             return y.value / (wrapperHeight.value - scrollerYH.value)
         })
-        console.log(per)
+        const contentPosition: ComputedRef<string> = computed(() => {
+            return -(contentHeight.value * per.value) + 'px'
+        })
         let disY = 0
         let start = 0
         let end = 0
@@ -99,7 +104,6 @@ export default defineComponent({
             nextTick(() => {
                 wrapperHeight.value = (wrapper.value as unknown as HTMLElement).offsetHeight
                 scrollerYH.value = (scrollerY.value as unknown as HTMLElement).offsetHeight
-                console.log(barHeight.value)
             })
         })
         return {
@@ -111,6 +115,7 @@ export default defineComponent({
             contentHeight,
             header,
             footer,
+            contentPosition,
             handleWheel,
             handleMousedown,
             handleBarsClick
