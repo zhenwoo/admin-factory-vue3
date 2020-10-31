@@ -18,16 +18,16 @@
 </template>
 
 <script lang="ts">
-import { ComputedRef, defineComponent, computed, Ref, ref, onMounted, nextTick, Slot } from 'vue'
+import { ComputedRef, defineComponent, computed, Ref, ref, onMounted, nextTick, PropType } from 'vue'
 export default defineComponent({
     name: 'CScroller',
     props: {
         clickAble: {
-            type: Boolean,
+            type: Boolean as PropType<boolean>,
             default: true
         },
         showBar: {
-            type: Boolean,
+            type: Boolean as PropType<boolean>,
             default: true
         }
     },
@@ -42,7 +42,10 @@ export default defineComponent({
         const wrapperHeight: Ref<number> = ref(0)
         const scrollerYH: Ref<number> = ref(0)
         const contentHeight: ComputedRef<number> = computed(() => {
-            return (content.value as unknown as HTMLElement).offsetHeight
+            if (content.value) {
+                return (content.value as unknown as HTMLElement).offsetHeight
+            }
+            return 0
         })
         const barHeight: ComputedRef<string> = computed(() => {
             if (wrapper.value) {
@@ -73,7 +76,7 @@ export default defineComponent({
             }
             contentTop.value = -(contentHeight.value - (wrapper.value as unknown as HTMLElement).offsetHeight) * scale.value
         }
-        const handleUp = (e: MouseEvent) => {
+        const handleUp = () => {
             document.removeEventListener('mousemove', handleMove)
             document.removeEventListener('mouseup', handleUp)
         }

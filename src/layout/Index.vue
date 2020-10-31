@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, SetupContext, ComputedRef } from 'vue'
+import { defineComponent, computed, SetupContext, ComputedRef, PropType } from 'vue'
 import { Store, useStore } from 'vuex'
 import config from '@/config/Index'
 import SideBar from '@/layout/componets/SideBar/index.vue'
@@ -29,7 +29,7 @@ export default defineComponent(
         name: 'Layout',
         props: {
             showHeader: {
-                type: Boolean,
+                type: Boolean as PropType<boolean>,
                 default: true
             }
         },
