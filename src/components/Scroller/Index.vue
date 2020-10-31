@@ -4,7 +4,7 @@
             <div class="c-scroller-header" v-if="header">
                 <slot name="header"></slot>
             </div>
-            <div class="c-scroller-content" ref="content" >
+            <div class="c-scroller-content" :style="{top: contentTop + 'px'}" ref="content" >
                 <slot></slot>
             </div>
             <div class="c-scroller-footer" v-if="footer">
@@ -38,6 +38,7 @@ export default defineComponent({
         const wrapper = ref(null)
         const content = ref(null)
         const scrollerY = ref(null)
+        const contentTop: Ref<number> = ref(0)
         const wrapperHeight: Ref<number> = ref(0)
         const scrollerYH: Ref<number> = ref(0)
         const contentHeight: ComputedRef<number> = computed(() => {
@@ -45,14 +46,14 @@ export default defineComponent({
         })
         const barHeight: ComputedRef<string> = computed(() => {
             if (wrapper.value) {
-                return `height: ${contentHeight.value / (wrapper.value as unknown as HTMLElement).offsetHeight}px`
+                const h = (wrapper.value as unknown as HTMLElement).offsetHeight
+                return `height: ${h / contentHeight.value * h}px`
             }
-            return '0px'
+            return 'height:0px'
         })
-        const per: ComputedRef<number> = computed(() => {
+        const scale: ComputedRef<number> = computed(() => {
             return y.value / (wrapperHeight.value - scrollerYH.value)
         })
-        console.log(per)
         let disY = 0
         let start = 0
         let end = 0
@@ -70,6 +71,7 @@ export default defineComponent({
             } else {
                 y.value = y.value >= dis.value ? dis.value : e.clientY - disY
             }
+            contentTop.value = -(contentHeight.value - (wrapper.value as unknown as HTMLElement).offsetHeight) * scale.value
         }
         const handleUp = (e: MouseEvent) => {
             document.removeEventListener('mousemove', handleMove)
@@ -87,19 +89,20 @@ export default defineComponent({
             if (!props.clickAble) return
             const top = (e.target as HTMLElement).getClientRects()
             y.value = e.y - top[0].top
+            contentTop.value = -(contentHeight.value - (wrapper.value as unknown as HTMLElement).offsetHeight) * scale.value
         }
         const handleWheel = (e: WheelEvent) => {
             if (e.deltaY < 0) {
-                y.value = y.value <= 1 ? 0 : y.value + 2 * e.deltaY
+                y.value = y.value <= 1 ? 0 : y.value + 1 * e.deltaY
             } else {
-                y.value = y.value >= dis.value ? dis.value : y.value + 2 * e.deltaY
+                y.value = y.value >= dis.value ? dis.value : y.value + 1 * e.deltaY
             }
+            contentTop.value = -(contentHeight.value - (wrapper.value as unknown as HTMLElement).offsetHeight) * scale.value
         }
         onMounted(() => {
             nextTick(() => {
                 wrapperHeight.value = (wrapper.value as unknown as HTMLElement).offsetHeight
                 scrollerYH.value = (scrollerY.value as unknown as HTMLElement).offsetHeight
-                console.log(barHeight.value)
             })
         })
         return {
@@ -111,6 +114,7 @@ export default defineComponent({
             contentHeight,
             header,
             footer,
+            contentTop,
             handleWheel,
             handleMousedown,
             handleBarsClick
@@ -135,7 +139,6 @@ export default defineComponent({
             .c-scroller-content{
                 position: absolute;
                 width: 100%;
-                top: -120px;
                 padding-bottom: 50px;
             }
             .c-scroller-footer{

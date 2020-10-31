@@ -27,7 +27,7 @@ export default defineComponent({
     },
     setup () {
         const arr: Ref<number[]> = ref([])
-        for (let i = 0; i < 60; i++) {
+        for (let i = 0; i < 100; i++) {
             arr.value.push(i)
         }
         return {
