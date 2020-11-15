@@ -1,9 +1,9 @@
 <template>
     <div class="app-frame" :class="`app-frame-${theme}`">
-        <div class="app-frame-header" :style="{height: headerHeight}" v-if="showHeader">
+        <div class="app-frame-header" :style="{height: headerHeight + 'px'}" v-if="showHeader">
             <c-header></c-header>
         </div>
-        <split :style="{height: bodyHeight}">
+        <split :style="{height: bodyHeight + 'px'}">
             <template v-slot:split1>
                 <side-bar></side-bar>
             </template>
@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, SetupContext, ComputedRef, PropType } from 'vue'
+import { defineComponent, computed, SetupContext, ComputedRef, PropType, Ref, ref, onMounted } from 'vue'
 import { Store, useStore } from 'vuex'
 import config from '@/config/Index'
 import SideBar from '@/layout/componets/SideBar/index.vue'
@@ -41,14 +41,21 @@ export default defineComponent(
         setup (props: Readonly<Props>, context: SetupContext) {
             console.log(context)
             const store: Store<any> = useStore()
-            const headerHeight: ComputedRef<string> = computed(() => {
-                return props.showHeader ? config.headerHeight + 'px' : '0px'
+            const bodyHeight: Ref<number> = ref(0)
+            const headerHeight: ComputedRef<number> = computed(() => {
+                return props.showHeader ? config.headerHeight : 0
             })
-            const bodyHeight: ComputedRef<string> = computed(() => {
-                return document.body.offsetHeight - parseInt(headerHeight.value.replace('px', '')) + 'px'
-            })
+            const setBodyHeight = () => {
+                bodyHeight.value = document.body.offsetHeight - headerHeight.value
+            }
             const theme: ComputedRef<string> = computed(() => {
                 return store.state.theme
+            })
+            onMounted(() => {
+                setBodyHeight()
+                window.addEventListener('resize', () => {
+                    setBodyHeight()
+                })
             })
             return {
                 headerHeight,
@@ -60,7 +67,7 @@ export default defineComponent(
 )
 </script>
 
-<style scoped lang="less">
+<style lang="less">
     @import url(../assets/style/var.less);
     .app-frame{
         position: relative;

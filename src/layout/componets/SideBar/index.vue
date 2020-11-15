@@ -19,9 +19,9 @@
 </template>
 <script lang="ts">
 import { defineComponent, Ref, ref } from 'vue'
-import Scroller from '@/components/Scroller/Index.vue'
+import Scroller from '@/components/Scroller/Index3.vue'
 export default defineComponent({
-    name: 'CHeader',
+    name: 'CSideBar',
     components: {
         Scroller
     },
@@ -37,11 +37,12 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="less">
+    @import "../../../assets/style/var.less";
     .c-side-search{
         padding: 10px;
         height: 52px;
         width: 100%;
-        background: red;
+        background: @bar-color;
         box-sizing: border-box;
         .c-nav-search{
             appearance: none;

@@ -1,13 +1,13 @@
 <template>
     <div class="c-scroller-wrapper"  @wheel="handleWheel" ref="wrapper">
         <div class="c-scroller-body">
-            <div class="c-scroller-header" v-if="$slots.header">
+            <div class="c-scroller-header" v-if="header">
                 <slot name="header"></slot>
             </div>
             <div class="c-scroller-content" :style="{top: contentTop + 'px'}" ref="content" >
                 <slot></slot>
             </div>
-            <div class="c-scroller-footer" v-if="$slots.footer">
+            <div class="c-scroller-footer" v-if="footer">
                 <slot name="footer"></slot>
             </div>
         </div>
@@ -32,59 +32,52 @@ export default defineComponent({
         }
     },
     setup (props, { slots }) {
-        // 滚动组件头部位置，主要用途比如在使用滚动组件做菜单的时候留有一个搜索框
         const header = ref(slots.header)
-        // 滚动组件脚部位置
         const footer = ref(slots.footer)
-        // 纵向滚动条的top位置
-        const barTop: Ref<number> = ref(0)
-        // 滚动组件容器
+        const y: Ref<number> = ref(0)
         const wrapper = ref(null)
-        // 滚动组件容器的高度
-        const wrapperHeight: Ref<number> = ref(0)
-        // 滚动内容的容器
         const content = ref(null)
-        // 滚动内容容器的top位置
-        const contentTop: Ref<number> = ref(0)
-        // 纵向滚动条
         const scrollerY = ref(null)
-        // 纵向滚动条高度
+        const contentTop: Ref<number> = ref(0)
+        const wrapperHeight: Ref<number> = ref(0)
         const scrollerYH: Ref<number> = ref(0)
-        let disY = 0
-        let start = 0
-        let end = 0
-        // 内容容器高度
         const contentHeight: ComputedRef<number> = computed(() => {
             if (content.value) {
                 return (content.value as unknown as HTMLElement).offsetHeight
             }
             return 0
         })
-        // 滚动条高度
-        const barHeight: ComputedRef<number> = computed(() => {
-            return wrapperHeight.value / contentHeight.value * wrapperHeight.value
+        const barHeight: ComputedRef<string> = computed(() => {
+            if (wrapper.value) {
+                const h = (wrapper.value as unknown as HTMLElement).offsetHeight
+                return `height: ${h / contentHeight.value * h}px`
+            }
+            return 'height:0px'
         })
-        // 滚动条样式设置
-        const barStyle: ComputedRef<string> = computed(() => {
-            return `top:${barTop.value}px;height:${barHeight.value}px`
-        })
-        // 滚动内容容器和滚动条容器高度比例，用于计算滚动容器的位置
         const scale: ComputedRef<number> = computed(() => {
-            return barTop.value / (wrapperHeight.value - scrollerYH.value)
+            return y.value / (wrapperHeight.value - scrollerYH.value)
+        })
+        let disY = 0
+        let start = 0
+        let end = 0
+        const barStyle: ComputedRef<string> = computed(() => {
+            return `top:${y.value}px;${barHeight.value}`
         })
         const dis: ComputedRef<number> = computed(() => {
             return wrapperHeight.value - scrollerYH.value
         })
-        // const setContentTop = () => -(contentHeight.value - wrapperHeight.value * scale.value)
+        const setContentTop = () => {
+            contentTop.value = -(contentHeight.value - (wrapper.value as unknown as HTMLElement).offsetHeight) * scale.value
+        }
         const handleMove = (e: MouseEvent) => {
             end = e.y
             const flag: number = end - start // 判断是否左右或者上下滑动方向
             if (flag <= 0) {
-                barTop.value = barTop.value <= 0 ? 0 : e.clientY - disY
+                y.value = y.value <= 0 ? 0 : e.clientY - disY
             } else {
-                barTop.value = barTop.value >= dis.value ? dis.value : e.clientY - disY
+                y.value = y.value >= dis.value ? dis.value : e.clientY - disY
             }
-            contentTop.value = -(contentHeight.value - wrapperHeight.value * scale.value)
+            setContentTop()
         }
         const handleUp = () => {
             document.removeEventListener('mousemove', handleMove)
@@ -101,31 +94,38 @@ export default defineComponent({
         const handleBarsClick = (e: MouseEvent) => {
             if (!props.clickAble) return
             const top = (e.target as HTMLElement).getClientRects()
-            barTop.value = e.y - top[0].top
-            contentTop.value = -(contentHeight.value - wrapperHeight.value * scale.value)
+            y.value = e.y - top[0].top
+            setContentTop()
         }
         const handleWheel = (e: WheelEvent) => {
             if (e.deltaY < 0) {
-                barTop.value = barTop.value <= 1 ? 0 : barTop.value + 1 * e.deltaY
+                y.value = y.value <= 1 ? 0 : y.value + 1 * e.deltaY
             } else {
-                barTop.value = barTop.value >= dis.value ? dis.value : barTop.value + 1 * e.deltaY
+                y.value = y.value >= dis.value ? dis.value : y.value + 1 * e.deltaY
             }
-            contentTop.value = -(contentHeight.value - wrapperHeight.value * scale.value)
+            setContentTop()
         }
         const reSetSize = () => {
             nextTick(() => {
-                if (wrapper.value) {
-                    wrapperHeight.value = (wrapper.value as unknown as HTMLElement).offsetHeight
-                    scrollerYH.value = (scrollerY.value as unknown as HTMLElement).offsetHeight
-                }
+                wrapperHeight.value = (wrapper.value as unknown as HTMLElement).offsetHeight
+                scrollerYH.value = (scrollerY.value as unknown as HTMLElement).offsetHeight
             })
         }
         onMounted(() => {
             reSetSize()
+            window.addEventListener('resize', () => {
+                reSetSize()
+            })
         })
         return {
+            wrapper,
+            scrollerY,
+            content,
             barStyle,
+            barHeight,
             contentHeight,
+            header,
+            footer,
             contentTop,
             handleWheel,
             handleMousedown,
@@ -170,7 +170,7 @@ export default defineComponent({
             width: 6px;
             overflow: hidden;
             z-index: 999;
-            background: orangered;
+            background: royalblue;
             .c-scroller-bar{
                 position: absolute;
                 height: 400px;
